@@ -19,18 +19,34 @@ for line in lines:
     measurement = float(line[3])
     measurements.append(measurement)
 
-x_train = np.array(images)
-y_train = np.array(measurements)
+augumented_images, augumented_measurements = [], []
+for image,measurement in zip(images,measurements):
+    augumented_images.append(image)
+    augumented_measurements.append(measurement)
+    augumented_images.append(cv2.flip(image,1))
+    augumented_measurements.append(measurement * -1.0)
+
+x_train = np.array(augumented_images)
+y_train = np.array(augumented_measurements)
 
 from keras.models import Sequential
-from keras.layers import Flatten, Dense
+from keras.layers import Flatten, Dense, Lambda
+from keras.layers.convolutional import Convolution2D
+from keras.layers.pooling import MaxPooling2D
 
 model = Sequential()
-model.add(Flatten(input_shape=(160,320,3)))
+model.add(Lambda(lambda x: x/255.0 - 0.5, input_shape=(160,320,3)))
+model.add(Convolution2D(6,5,5,activation="relu"))
+model.add(MaxPooling2D())
+model.add(Convolution2D(6,5,5,activation="relu"))
+model.add(MaxPooling2D())
+model.add(Flatten())
+model.add(Dense(120))
+model.add(Dense(84))
 model.add(Dense(1))
 
 model.compile(loss='mse', optimizer='adam')
 model.fit(x_train, y_train, validation_split=0.2,shuffle=True, nb_epoch=10)
 
 model.save('model.h5')
-print ("the end")
+exit()
