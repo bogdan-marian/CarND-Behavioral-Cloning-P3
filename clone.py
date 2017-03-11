@@ -1,34 +1,48 @@
+import os
 import csv
-import cv2
-import numpy as np
 
-lines =[]
+samples = []
 dataFolder = "/home/bogdan/colected_data/session3"
-with open (dataFolder+'/driving_log.csv') as csvfile:
+
+with open(dataFolder + '/driving_log.csv') as csvfile:
     reader = csv.reader(csvfile)
     for line in reader:
-        lines.append(line)
+        samples.append(line)
 
-images =[]
-measurements = []
-for line in lines:
-    source_path = line[0]
-    filename = source_path.split('/')[-1]
-    current_path = dataFolder+'/IMG/' + filename
-    image = cv2.imread(current_path)
-    images.append(image);
-    measurement = float(line[3])
-    measurements.append(measurement)
+from sklearn.model_selection import train_test_split
+train_samples, validation_samples = train_test_split(samples, test_size=0.2)
 
-augumented_images, augumented_measurements = [], []
-for image,measurement in zip(images,measurements):
-    augumented_images.append(image)
-    augumented_measurements.append(measurement)
-    augumented_images.append(cv2.flip(image,1))
-    augumented_measurements.append(measurement * -1.0)
+import cv2
+import numpy as np
+import sklearn
 
-x_train = np.array(augumented_images)
-y_train = np.array(augumented_measurements)
+def generator(samples, batch_size=32):
+    num_samples = len(samples)
+    while 1: # Loop forever so the generator never terminates
+        for offset in range(0, num_samples, batch_size):
+            batch_samples = samples[offset:offset+batch_size]
+
+            images = []
+            angles = []
+            for batch_sample in batch_samples:
+                name = dataFolder+'/IMG/'+batch_sample[0].split('/')[-1]
+                center_image = cv2.imread(name)
+                center_angle = float(batch_sample[3])
+                images.append(center_image)
+                angles.append(center_angle)
+
+            # trim image to only see section with road
+            x_train = np.array(images)
+            y_train = np.array(angles)
+            yield sklearn.utils.shuffle(x_train, y_train)
+
+# compile and train the model using the generator function
+train_generator = generator(train_samples, batch_size=32)
+validation_generator = generator(validation_samples, batch_size=32)
+
+#ch, row, col = 3, 80, 320  # Trimmed image format
+
+
 
 from keras.models import Sequential, Model
 from keras.layers import Flatten, Dense, Lambda, Cropping2D
@@ -54,10 +68,15 @@ model.add(Dense(10))
 model.add(Dense(1))
 
 model.compile(loss='mse', optimizer='adam')
-history_object = model.fit(x_train, y_train,
-    validation_split=0.2,
-    shuffle=True, nb_epoch=5, 
-    verbose=1)
+#history_object = model.fit_generator(x_train, y_train,
+#    validation_split=0.2,
+#    shuffle=True, nb_epoch=5,
+#    verbose=1)
+
+history_object = model.fit_generator(train_generator,
+                        samples_per_epoch = len(train_samples),
+                        validation_data = validation_generator,
+                        nb_val_samples = len(validation_samples), nb_epoch=7)
 
 model.save('model.h5')
 
