@@ -2,6 +2,8 @@ import os
 import csv
 
 samples = []
+
+#my root folder for the data
 dataFolder = "/home/bogdan/colected_data/session3"
 
 with open(dataFolder + '/driving_log.csv') as csvfile:
@@ -16,6 +18,7 @@ import cv2
 import numpy as np
 import sklearn
 
+#define the generator
 def generator(samples, batch_size=32):
     num_samples = len(samples)
     while 1: # Loop forever so the generator never terminates
@@ -40,9 +43,6 @@ def generator(samples, batch_size=32):
 train_generator = generator(train_samples, batch_size=32)
 validation_generator = generator(validation_samples, batch_size=32)
 
-#ch, row, col = 3, 80, 320  # Trimmed image format
-
-
 
 from keras.models import Sequential, Model
 from keras.layers import Flatten, Dense, Lambda, Cropping2D
@@ -52,6 +52,7 @@ from keras.layers.pooling import MaxPooling2D
 
 import matplotlib.pyplot as plt
 
+#define the model
 model = Sequential()
 model.add(Lambda(lambda x: x/255.0 - 0.5, input_shape=(160,320,3)))
 model.add( Cropping2D(cropping=((70,25), (0,0))))
@@ -68,11 +69,8 @@ model.add(Dense(10))
 model.add(Dense(1))
 
 model.compile(loss='mse', optimizer='adam')
-#history_object = model.fit_generator(x_train, y_train,
-#    validation_split=0.2,
-#    shuffle=True, nb_epoch=5,
-#    verbose=1)
 
+#train the model
 history_object = model.fit_generator(train_generator,
                         samples_per_epoch = len(train_samples),
                         validation_data = validation_generator,
