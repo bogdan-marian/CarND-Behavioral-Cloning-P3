@@ -4,7 +4,7 @@ import csv
 samples = []
 
 #my root folder for the data
-dataFolder = "/home/bogdan/colected_data/session6"
+dataFolder = "/home/bogdan/colected_data/session8"
 
 with open(dataFolder + '/driving_log.csv') as csvfile:
     reader = csv.reader(csvfile)
@@ -76,7 +76,7 @@ model = define_network()
 history_object = model.fit_generator(train_generator,
                         samples_per_epoch = len(train_samples),
                         validation_data = validation_generator,
-                        nb_val_samples = len(validation_samples), nb_epoch=6)
+                        nb_val_samples = len(validation_samples), nb_epoch=5)
 
 model.save('model.h5')
 
