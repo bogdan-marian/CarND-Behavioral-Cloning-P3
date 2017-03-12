@@ -4,7 +4,7 @@ import csv
 samples = []
 
 #my root folder for the data
-dataFolder = "/home/bogdan/colected_data/session8"
+dataFolder = "/home/bogdan/colected_data/workspace"
 
 with open(dataFolder + '/driving_log.csv') as csvfile:
     reader = csv.reader(csvfile)
@@ -76,7 +76,7 @@ model = define_network()
 history_object = model.fit_generator(train_generator,
                         samples_per_epoch = len(train_samples),
                         validation_data = validation_generator,
-                        nb_val_samples = len(validation_samples), nb_epoch=5)
+                        nb_val_samples = len(validation_samples), nb_epoch=3)
 
 model.save('model.h5')
 
@@ -93,3 +93,9 @@ plt.legend(['training set', 'validation set'], loc='upper right')
 plt.show()
 
 exit()
+
+#just a list of shortcuts used by me when working with the model
+# python3 clone.py
+# python3 drive.py model.h5 run1
+# python3 video.py run1 --fps 120
+# totem run1.mp4 &
