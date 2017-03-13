@@ -80,8 +80,6 @@ Training data was chosen to keep the vehicle driving on the road. I used a combi
 
 #### 1. Solution Design Approach
 
-The overall strategy for deriving a model architecture was to ...
-
 My first step was to use the suggested NVIDIA network. I thought this model might be appropriate because it was pacifically designed for self driving cars and tested with very promising result on real cars.
 
 In order to gauge how well the model was working, I split my image and steering angle data into a training and validation set. I found that my first model had a low mean squared error on the training set but a high mean squared error on the validation set. This implied that the model was overfitting.
@@ -90,7 +88,7 @@ To combat the overfitting, First I collected more training data by driving backw
 
 Then I continued training and testing on the simulator and when things went not as expected I was collecting recovery maneuvers and preventive maneuvers.
 
-There were a few spots where the vehicle fell off the track. Special around tit corners. To improve the driving behavior in these cases, I created a local repository for me and recored recovery maneuvers and preventive maneuvers. If the added training set was improving the outcome then I will continue the process and if not then I was dripping the added training data and collected new one. I discovered in this process that the most affective data was the preventive maneuvers data. (not how to recover from the side of the road but what to do when the care was getting to close to the side of the road.)
+There were a few spots where the vehicle fell off the track. Special around tight corners. To improve the driving behavior in these cases, I created a local repository for me and recored recovery maneuvers and preventive maneuvers. If the added training set was improving the outcome then I will continue the process and if not then I was dropping the added training data and collected new one. I discovered in this process that the most affective data was the preventive maneuvers data. (not how to recover from the side of the road but what to do when the care was getting to close to the side of the road.)
 
 At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
 
